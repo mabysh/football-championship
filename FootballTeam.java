@@ -2,13 +2,15 @@ package footballchampionship;
 
 public class FootballTeam {
     private String name;
+	private int index = 0;
     private int games;
     private int scoredGoals;
     private int missedGoals;
 	private int goalsDifference;
     private int points;
 
-    public FootballTeam(String name) {
+    public FootballTeam(String name, int index) {
+		this.index = index;
         this.name = name;
 		this.games = 0;
 		this.scoredGoals = 0;
@@ -17,7 +19,8 @@ public class FootballTeam {
 		this.points = 0;
     }
 
-	public FootballTeam(String name, int games, int scoredGoals, int missedGoals, int goalsDifference, int points) {
+	public FootballTeam(String name, int index, int games, int scoredGoals, int missedGoals, int goalsDifference, int points) {
+		this.index = index;
 		this.name = name;
 		this.games = games;
 		this.scoredGoals = scoredGoals;
@@ -44,6 +47,13 @@ public class FootballTeam {
     public int getPoints() {
         return points;
     }
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
 
     public void matchPlayed(String result, int scored, int missed) {
         if (result.equals("WIN")) {
@@ -57,4 +67,7 @@ public class FootballTeam {
         goalsDifference = scoredGoals - missedGoals;
     }
 	
+	public String toString() {
+		return name;	
+	}
 }
