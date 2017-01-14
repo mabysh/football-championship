@@ -10,32 +10,31 @@ import java.util.ArrayList;
 
 public class Statistics {
     private JFrame frame;
-    private JPanel cardsPanel, buttonsPanel, infoPanel, tablePanel, matchPanel, matchPanelCenter, matchPanelCenter2, matchPanelCenter3;
+    private JPanel cardsPanel, buttonsPanel, infoPanel, tablePanel, matchPanel, matchPanelCenter, matchPanelCenter2, matchPanelCenter3, tablePanelCenter;
     private JButton infoButton, tableButton, addButton, saveButton, addResults;
     private JTable infoTable, tableTable;
-    private JScrollPane jsp, jsList1, jsList2;
+    private JScrollPane jsp, jsList1, jsList2, jsInfo;
 	private JList<FootballTeam> teamList1, teamList2;
 	private JTextField goals1, goals2;	
 	private JLabel vs, versus;
 	private Font bigFont, middleFont;
+	private JComboBox comboBox;
+	private JTextArea text;
 
     static final String INFOPANEL = "Team Information";
     static final String TABLEPANEL = "Results Table";
     static final String ADDPANEL = "Add Game Results";
 
-    ButtonListener bl = new ButtonListener();
-	ListListener ll = new ListListener();
-	TableRowSorter sorter;
-
-    private FootballTeam chalsea, manUtd, arsenal, totten, liverp, manCity, aston, sunder, stoke, wigan, burnley, bolton, fulham, everton, birmin, blackb, wolver, hull, westHam, ports;
-
-    private FootballTeam[] teamArray  = {chalsea, manUtd, arsenal, totten, liverp, manCity, aston, sunder, stoke, wigan, burnley, bolton, fulham, everton, birmin, blackb, wolver, hull, westHam, ports};
-
-	TheTableModel mymodel;
+	private String teamInfo;
+	private String path = "footballchampionship/teaminfo";
+    private ButtonListener bl = new ButtonListener();
+	private ListListener ll = new ListListener();
+	private TableRowSorter sorter;
+    private FootballTeam chelsea, manUtd, arsenal, totten, liverp, manCity, aston, sunder, stoke, wigan, burnley, bolton, fulham, everton, birmin, blackb, wolver, hull, westHam, ports;
+    private FootballTeam[] teamArray  = {chelsea, manUtd, arsenal, totten, liverp, manCity, aston, sunder, stoke, wigan, burnley, bolton, fulham, everton, birmin, blackb, wolver, hull, westHam, ports};
+	private TheTableModel mymodel;
 	private String[] listEntries = new String[20];
-
-    private File teamData = new File("footballchampionship/teamData.txt");
-
+    private File teamData, chelseaf, manUtdf, arsenalf, tottenf, liverpf, manCityf, astonf, sunderf, stokef, wiganf, burnleyf, boltonf, fulhamf, evertonf, birminf, blackbf, wolverf,hullf, westHamf, portsf; 
     public static void main(String[] args) {
         Statistics stat = new Statistics();
         stat.setUpGui();
@@ -52,8 +51,12 @@ public class Statistics {
                 cl.show(cardsPanel, (String)ADDPANEL);
             } else if (e.getSource() == saveButton) {
 				writeData();
-            } else {
+            } else if (e.getSource() == addResults) {
 				addMatchResults();
+			} else {
+				JComboBox cb = (JComboBox)e.getSource();
+				String s = cb.getSelectedItem().toString();
+				setText(s);
 			}
         }
     }
@@ -82,8 +85,10 @@ public class Statistics {
         cardsPanel = new JPanel(new CardLayout());
         infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBackground(Color.BLUE);
-        tablePanel = new JPanel();
+        tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBackground(Color.GREEN);
+		tablePanelCenter = new JPanel(new BorderLayout());
+        tablePanelCenter.setBackground(Color.GREEN);
         matchPanel = new JPanel(new BorderLayout());
         matchPanel.setBackground(Color.RED);
 		matchPanelCenter = new JPanel(new BorderLayout());
@@ -133,6 +138,14 @@ public class Statistics {
 		addResults = new JButton("Add Match Reasults");
 		versus = new JLabel("Team1 vs Team2", JLabel.CENTER);
 		versus.setFont(middleFont);	
+		//create info panel components
+		text = new JTextArea();
+		text.setLineWrap(true);
+		text.setWrapStyleWord(true);
+		jsInfo = new JScrollPane(text);
+		jsInfo.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		jsInfo.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		comboBox = new JComboBox(teamArray);
     }
     
     private void addComponents() {
@@ -174,6 +187,18 @@ public class Statistics {
 		matchPanelCenter3.add(goals1, BorderLayout.WEST);
 		matchPanelCenter3.add(addResults, BorderLayout.SOUTH);
 		matchPanelCenter3.add(versus, BorderLayout.NORTH);
+		//configure table Panel
+		tablePanel.add(Box.createHorizontalStrut(20), BorderLayout.EAST);
+		tablePanel.add(Box.createHorizontalStrut(20), BorderLayout.WEST);
+		tablePanel.add(Box.createVerticalStrut(20), BorderLayout.NORTH);
+		tablePanel.add(Box.createVerticalStrut(20), BorderLayout.SOUTH);
+		tablePanel.add(tablePanelCenter, BorderLayout.CENTER);
+		BorderLayout l = (BorderLayout)tablePanelCenter.getLayout();
+		l.setVgap(20);
+		tablePanelCenter.add(comboBox, BorderLayout.NORTH);
+		tablePanelCenter.add(jsInfo, BorderLayout.CENTER);
+		text.setEditable(false);
+		setText(teamArray[0].getName());
     }
     
     private void registerListeners() {
@@ -183,6 +208,7 @@ public class Statistics {
         addButton.addActionListener(bl);
         saveButton.addActionListener(bl);
 		addResults.addActionListener(bl);
+		comboBox.addActionListener(bl);
 		teamList1.addListSelectionListener(ll);
 		teamList2.addListSelectionListener(ll);
 		mymodel.addTableModelListener(new TableModelListener() {
@@ -200,10 +226,16 @@ public class Statistics {
 			}
 		});
     }
+
+	private void setText(String s) {
+		readData(new File(path, s));
+		text.setText(teamInfo);
+	}
     
     private void loadTeams() {
+		teamData = new File("footballchampionship", "teamData.txt");
 		if (teamData.exists()) {
-		    readData();
+		    readData(teamData);
 		} else {
 		    newTeams();
 		}
@@ -211,6 +243,7 @@ public class Statistics {
     
     private void writeData() {
 	try {
+		teamData = new File("footballchampionship", "teamData.txt");
 	    BufferedWriter bw = new BufferedWriter(new FileWriter(teamData));
 	    String str = "";
 	    for (FootballTeam t : teamArray) {
@@ -224,20 +257,30 @@ public class Statistics {
 	}
     }
 
-    private void readData() {
+    private void readData(File file) {
 	try {
-	    BufferedReader br = new BufferedReader(new FileReader(teamData));
+	    BufferedReader br = new BufferedReader(new FileReader(file));
 		String str = null;
 		String[] arr = null;
-		int team = 0;
-		while ((str = br.readLine()) != null) {
-			arr = str.split("/");
-			teamArray[team] = new FootballTeam(arr[0], Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), Integer.parseInt(arr[3]), Integer.parseInt(arr[4]), Integer.parseInt(arr[5]), Integer.parseInt(arr[6]));
-			team++;
+		if (file == teamData) {
+			int team = 0;
+			while ((str = br.readLine()) != null) {
+				arr = str.split("/");
+				teamArray[team] = new FootballTeam(arr[0], Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), Integer.parseInt(arr[3]), Integer.parseInt(arr[4]), Integer.parseInt(arr[5]), Integer.parseInt(arr[6]));
+				team++;
+			}
+		} else {
+			teamInfo = "";
+			while ((str = br.readLine()) != null) {
+				if (str.equals(""))
+					str = "\n\n";
+				teamInfo += str;
+			}
 		}
+		
 		br.close();
 	}catch (IOException e) {
-        JOptionPane.showMessageDialog(frame, "Read data failed. Creating teams from scratch...", "error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "Read data failed.", "error", JOptionPane.WARNING_MESSAGE);
 	    newTeams();
 	}
     }
@@ -310,6 +353,8 @@ public class Statistics {
 				mymodel.fireTableDataChanged();	
 			}
 			JOptionPane.showMessageDialog(frame, "Success!", "Information", JOptionPane.INFORMATION_MESSAGE);
+			goals1.setText("");
+			goals2.setText("");
 		} catch (NumberFormatException e) {
 			JOptionPane.showMessageDialog(frame, "Please, set correct values.", "Error", JOptionPane.WARNING_MESSAGE);
 		} catch (NullPointerException e) {
