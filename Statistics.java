@@ -35,9 +35,14 @@ public class Statistics {
 	private TheTableModel mymodel;
 	private String[] listEntries = new String[20];
     private File teamData, chelseaf, manUtdf, arsenalf, tottenf, liverpf, manCityf, astonf, sunderf, stokef, wiganf, burnleyf, boltonf, fulhamf, evertonf, birminf, blackbf, wolverf,hullf, westHamf, portsf; 
+
     public static void main(String[] args) {
-        Statistics stat = new Statistics();
-        stat.setUpGui();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Statistics stat = new Statistics();
+				stat.setUpGui();
+			}
+		})
     }
 
     class ButtonListener implements ActionListener {
