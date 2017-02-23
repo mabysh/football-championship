@@ -1,4 +1,4 @@
-package footballchampionship;
+package javadev.footballchampionship;
 
 import javax.swing.table.AbstractTableModel;
 

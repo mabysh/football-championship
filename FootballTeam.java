@@ -1,4 +1,4 @@
-package footballchampionship;
+package javadev.footballchampionship;
 
 public class FootballTeam {
     private String name;

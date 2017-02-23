@@ -1,4 +1,4 @@
-package footballchampionship;
+package javadev.footballchampionship;
 
 import java.io.*;
 import javax.swing.*;
@@ -26,7 +26,7 @@ public class Statistics {
     static final String ADDPANEL = "Add Game Results";
 
 	private String teamInfo;
-	private String path = "footballchampionship/teaminfo";
+	private String path = "javadev/footballchampionship/teaminfo";
     private ButtonListener bl = new ButtonListener();
 	private ListListener ll = new ListListener();
 	private TableRowSorter sorter;
@@ -42,7 +42,7 @@ public class Statistics {
 				Statistics stat = new Statistics();
 				stat.setUpGui();
 			}
-		})
+		});
     }
 
     class ButtonListener implements ActionListener {
@@ -248,7 +248,10 @@ public class Statistics {
     
     private void writeData() {
 	try {
-		teamData = new File("footballchampionship", "teamData.txt");
+		teamData = new File(path, "teamData.txt");
+		if (!teamData.exists()) {
+			teamData.createNewFile();
+		}
 	    BufferedWriter bw = new BufferedWriter(new FileWriter(teamData));
 	    String str = "";
 	    for (FootballTeam t : teamArray) {
